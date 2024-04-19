@@ -1,0 +1,24 @@
+.app {
+  width: 700px;
+  margin-inline: auto;
+  border: 1px solid #ccc;
+  padding: 20px;
+  height: 100%;
+  min-height: 100dvh;
+}
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+li {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 10px;
+}
+button {
+  padding: 10px;
+  border: none;
+  background-color: #646cff;
+  color: white;
+  cursor: pointer;
+}
