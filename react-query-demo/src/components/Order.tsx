@@ -1,49 +1,65 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { OrderI } from "./Orders";
-
+import keys from "../key";
 const Order = (order: OrderI) => {
   const queryClient = useQueryClient();
   const deleteOrder = async (id: string) => {
-    await fetch(`http://localhost:9001/api/orders/${id}`, {
+    await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/orders/${id}`, {
       method: "DELETE",
     });
   };
 
   const publishOrder = async (id: string) => {
-    await fetch(`http://localhost:9001/api/orders/${id}`, {
+    await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/orders/${id}`, {
       method: "PATCH",
     });
   };
 
   const mutation = useMutation({
     mutationFn: deleteOrder,
-    mutationKey: ["deleteOrder"],
+    mutationKey: [keys.DELETE_ORDER],
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["orders"] });
+      await queryClient.invalidateQueries({ queryKey: [keys.ORDERS] });
     },
 
-    // onMutate: async () => {
-    //   await queryClient.cancelQueries({ queryKey: ["orders"] });
-    //   const previousOrders = queryClient.getQueryData(["orders"]);
-    //   queryClient.setQueryData(["orders"], (old: OrderI[]) => {
-    //     return old.filter((o: OrderI) => o.id !== order.id);
-    //   });
-    //   return { previousOrders };
-    // },
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: [keys.ORDERS] });
+      const previousOrders = queryClient.getQueryData([keys.ORDERS]);
+      queryClient.setQueryData([keys.ORDERS], (old: OrderI[]) => {
+        return old.filter((o: OrderI) => o.id !== order.id);
+      });
+      return { previousOrders };
+    },
     onError: (err, variables, context) => {
       console.log(err, variables, context);
     },
     onSettled: async () => {
-      //   await queryClient.invalidateQueries({ queryKey: ["orders"] });
+      //   await queryClient.invalidateQueries({ queryKey: [keys.ORDERS] });
     },
   });
 
   const publishMutation = useMutation({
     mutationFn: publishOrder,
-    mutationKey: ["publishOrder"],
+    mutationKey: [keys.PUBLISH_ORDER],
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["orders"] });
+      await queryClient.invalidateQueries({ queryKey: [keys.ORDERS] });
       //when succeeded, invalidate the query
+    },
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: [keys.ORDERS] });
+      const previousOrders = queryClient.getQueryData([keys.ORDERS]);
+      queryClient.setQueryData([keys.ORDERS], (old: OrderI[]) => {
+        return old.map((o: OrderI) => {
+          if (o.id === order.id) {
+            return {
+              ...o,
+              live: !o.live,
+            };
+          }
+          return o;
+        });
+      });
+      return { previousOrders };
     },
     onError: (err, variables, context) => {
       console.log("onError: only when there is error", err, variables, context);
@@ -73,10 +89,10 @@ const Order = (order: OrderI) => {
           }}
           onClick={async () => mutation.mutate(order.id)}
         >
-          {mutation.isPending ? "Deleting..." : "Delete"}
+          Delete
         </button>
         <button onClick={async () => publishMutation.mutate(order.id)}>
-          {publishMutation.isPending ? "(un)Publishing..." : "(un)Publish"}
+          Publish
         </button>
       </div>
     </li>

@@ -1,15 +1,9 @@
 import ApproveAllOrders from "./ApproveAllOrders";
-import { useQuery } from "@tanstack/react-query";
 import { OrderI } from "./Orders";
+import useOrders from "../hooks/useOrders";
 
 export default function Header() {
-  const { data, isFetching } = useQuery({
-    queryKey: ["orders"],
-    queryFn: async () => {
-      const response = await fetch("http://localhost:9001/api/orders");
-      return response.json();
-    },
-  });
+const {data} = useOrders();
 
   return (
     <div
@@ -21,7 +15,7 @@ export default function Header() {
       }}
     >
       <span>
-        #orders: {data?.length} {isFetching ? "!" : "-"}
+        #orders: {data?.length} 
       </span>
       <span>||</span>
       <span>Live Orders: {data?.filter((o: OrderI) => o.live)?.length} </span>

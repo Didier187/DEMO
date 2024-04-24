@@ -1,4 +1,6 @@
 import "./App.css";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Header from "./components/Header";
 import Orders from "./components/Orders";
@@ -16,6 +18,7 @@ function App() {
         <br />
         <AddOrder />
       </div>
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }

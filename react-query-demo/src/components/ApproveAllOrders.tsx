@@ -1,47 +1,23 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { OrderI } from "./Orders";
+import useOrders from "../hooks/useOrders";
+import useToggleOrderStatus from "../hooks/useToggleOrderStatus";
 
 export default function ApproveAllOrders() {
-  const queryClient = useQueryClient();
-  const { data } = useQuery({
-    queryKey: ["orders"],
-    queryFn: async () => {
-      const response = await fetch("http://localhost:9001/api/orders");
-      return response.json();
-    },
-  });
-
-  const approveOrders = async (id:string) => {
-    await fetch(`http://localhost:9001/api/orders/${id}`, {
-      method: "PATCH",
-    });
-  };
-  const mutation = useMutation({
-    mutationFn: approveOrders,
-    mutationKey: ["approveOrders"],
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["orders"] });
-    },
-    onError: (err, variables, context) => {
-      console.log(err, variables, context);
-    },
-    onSettled: async () => {
-      console.log("onSettled: after success or error");
-    },
-  });
+  const { data } = useOrders();
+  const mutation = useToggleOrderStatus();
 
   return (
     <div>
       <button
         onClick={async () => {
-          data.map((order: OrderI) => {
-            mutation.mutateAsync(order.id);
+          if (!data) return;
+        data.map(async(order: OrderI) => {
+           await mutation.mutateAsync(order.id);
           });
         }}
       >
         Approve All Orders
       </button>
-      <p>{mutation.isPending ? "Approving Orders..." : ""}</p>
     </div>
   );
 }

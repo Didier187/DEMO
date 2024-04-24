@@ -21,4 +21,13 @@ button {
   background-color: #646cff;
   color: white;
   cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.3s ease-in-out;
+}
+button:hover {
+  background-color: #4f4fff;
+}
+button:active{
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
 }

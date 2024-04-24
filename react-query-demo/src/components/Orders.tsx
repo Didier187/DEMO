@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
 import Order from "./Order";
-
+import useOrders from "../hooks/useOrders";
+import { useAutoAnimate } from '@formkit/auto-animate/react'
 export interface OrderI {
   id: string;
   description: string;
@@ -9,31 +9,25 @@ export interface OrderI {
 }
 
 export default function Orders() {
-  const getOrders = async () => {
-    const response = await fetch("http://localhost:9001/api/orders");
-    return response.json();
-  };
-  const { data, status, isFetching } = useQuery({
-    queryKey: ["orders"],
-    queryFn: getOrders,
-  });
-
-  if (status === "pending") {
+  const [parent] = useAutoAnimate()
+  const { data, isError, isLoading } = useOrders();
+  if (isLoading) {
     return <div>Loading...</div>;
   }
-  if (status === "error") {
+  if (isError) {
     return <div>Error</div>;
   }
   return (
     <div>
       Orders
       <br />
-      {isFetching ? <span>...refreshing...</span> : <span></span>}
-      <ul>
-        {data.map((order: OrderI) => (
+      <ul ref={parent}>
+        {data?.map((order: OrderI) => (
           <Order key={order.id} {...order} />
         ))}
       </ul>
     </div>
   );
 }
+
+

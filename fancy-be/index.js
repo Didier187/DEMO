@@ -44,7 +44,8 @@ app.get("/api/orders", (req, res) => {
 });
 
 app.post("/api/orders", (req, res) => {
-  const order = { id: Date.now(), resolved: false, ...req.body };
+  console.log("Received new order: " + JSON.stringify(req.body, null, 2));
+  const order = { ...req.body };
   orders.push(order);
 
   res.json(order);
